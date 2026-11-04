@@ -3,93 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>eGFR Calculator (CKD-EPI 2021)</title>
+    <title>eGFR & CKD Stage Calculator</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f7f6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            height: 100vh;
+            justify-content: center;
+            min-height: 100vh;
             margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
         }
         .calculator-card {
             background: white;
             padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            max-width: 400px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(13, 148, 136, 0.1);
+            max-width: 460px;
             width: 100%;
+            border-top: 5px solid #0d9488;
+            margin-bottom: 25px;
         }
-        h2 { text-align: center; color: #333; margin-top: 0; }
+        h2 { text-align: center; color: #0f172a; margin-top: 0; margin-bottom: 5px; }
         .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        label { display: block; margin-bottom: 6px; font-weight: 600; color: #334155; font-size: 14px; }
         input, select {
             width: 100%;
             padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
             box-sizing: border-box;
+            font-size: 15px;
         }
+        input:focus, select:focus { outline: none; border-color: #0d9488; }
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
         button {
-            width: 100%;
+            flex: 2;
             padding: 12px;
-            background-color: #007bff;
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             font-size: 16px;
             cursor: pointer;
             font-weight: bold;
         }
-        button:hover { background-color: #0056b3; }
+        .btn-calc { background-color: #0d9488; }
+        .btn-calc:hover { background-color: #0f766e; }
+        .btn-reset { flex: 1; background-color: #94a3b8; }
+        .btn-reset:hover { background-color: #64748b; }
+        
+        /* Dynamic Results Styling */
         .result {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #e9ecef;
-            border-radius: 4px;
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 8px;
             text-align: center;
             display: none;
+            border: 1px solid #e2e8f0;
         }
-        .result-val { font-size: 24px; font-weight: bold; color: #28a745; margin: 10px 0; }
-        .disclaimer { font-size: 11px; color: #777; margin-top: 20px; text-align: justify; }
+        .result-val { font-size: 36px; font-weight: 800; margin: 5px 0; }
+        .stage-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        /* Color classes for different CKD Stages */
+        .stage-1 { background-color: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+        .stage-2 { background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+        .stage-3 { background-color: #ffedd5; color: #9a3412; border: 1px solid #fed7aa; }
+        .stage-4 { background-color: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+        .stage-5 { background-color: #fce7f3; color: #9d174d; border: 1px solid #fbcfe8; }
+
+        /* Reference Table Styling */
+        .table-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            max-width: 460px;
+            width: 100%;
+        }
+        .table-card h3 { margin-top: 0; color: #334155; font-size: 16px; text-align: center; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: left; }
+        th, td { padding: 8px 10px; border-bottom: 1px solid #e2e8f0; }
+        th { background-color: #f8fafc; color: #475569; font-weight: 600; }
+        
+        .disclaimer { font-size: 11px; color: #64748b; margin-top: 20px; text-align: justify; line-height: 1.4; }
     </style>
 </head>
 <body>
 
 <div class="calculator-card">
     <h2>eGFR Calculator</h2>
-    <p style="font-size: 12px; color: #666; text-align: center; margin-top: -10px;">CKD-EPI (2021) Race-Free Equation</p>
+    <p style="font-size: 12px; color: #64748b; text-align: center; margin-top: 0; margin-bottom: 20px;">CKD-EPI (2021) Race-Free Equation</p>
     
-    <div class="form-group">
-        <label for="creatinine">Serum Creatinine (mg/dL):</label>
-        <input type="number" id="creatinine" step="0.01" placeholder="e.g., 0.95" required>
-    </div>
-
-    <div class="form-group">
-        <label for="age">Age (years):</label>
-        <input type="number" id="age" placeholder="e.g., 45" required>
-    </div>
-
-    <div class="form-group">
-        <label for="sex">Biological Sex:</label>
-        <select id="sex" required>
-            <option value="female">Female</option>
-            <option value="male">Male</option>
-        </select>
-    </div>
-
-    <button onclick="calculateEGFR()">Calculate eGFR</button>
+    <form id="calcForm" onsubmit="event.preventDefault();">
+        <div class="form-group">
+            <label for="creatinine">Serum Creatinine (mg/dL):</label>
+            <input type="number" id="creatinine" step="0.01" placeholder="e.g., 0.95" required>
+        </div>
+        <div class="form-group">
+            <label for="age">Age (years):</label>
+            <input type="number" id="age" placeholder="e.g., 45" required>
+        </div>
+        <div class="form-group">
+            <label for="sex">Biological Sex:</label>
+            <select id="sex" required>
+                <option value="female">Female</option>
+                <option value="male">Male</option>
+            </select>
+        </div>
+        <div class="btn-group">
+            <button type="button" class="btn-calc" onclick="calculateEGFR()">Calculate</button>
+            <button type="button" class="btn-reset" onclick="resetCalculator()">Reset</button>
+        </div>
+    </form>
 
     <div id="resultBox" class="result">
-        <div>Your Estimated GFR:</div>
+        <div style="color: #334155; font-weight: 600;">Your Estimated GFR:</div>
         <div id="egfrValue" class="result-val">--</div>
-        <div style="font-size: 13px; color: #555;">mL/min/1.73 m²</div>
+        <div style="font-size: 13px; color: #64748b; font-weight: 500; margin-bottom: 10px;">mL/min/1.73 m²</div>
+        <div id="stageBadge" class="stage-badge">--</div>
     </div>
+</div>
 
+<!-- Reference Staging Table -->
+<div class="table-card">
+    <h3>CKD Staging Reference Table (KDIGO)</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Stage</th>
+                <th>eGFR Range</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr style="background-color: #f0fdf4;"><td><strong>G1</strong></td><td>&ge; 90</td><td>Normal or high kidney function</td></tr>
+            <tr style="background-color: #fefdf0;"><td><strong>G2</strong></td><td>60 - 89</td><td>Mildly decreased function</td></tr>
+            <tr style="background-color: #fff7ed;"><td><strong>G3a</strong></td><td>45 - 59</td><td>Mild to moderately decreased</td></tr>
+            <tr style="background-color: #fffaf0;"><td><strong>G3b</strong></td><td>30 - 44</td><td>Moderate to severely decreased</td></tr>
+            <tr style="background-color: #fef2f2;"><td><strong>G4</strong></td><td>15 - 29</td><td>Severely decreased function</td></tr>
+            <tr style="background-color: #fdf2f8;"><td><strong>G5</strong></td><td>&lt; 15</td><td>Kidney failure (End-stage)</td></tr>
+        </tbody>
+    </table>
     <div class="disclaimer">
-        <strong>Disclaimer:</strong> This tool is for informational purposes only and does not substitute for professional medical advice, diagnosis, or clinical judgement. 
+        <strong>Disclaimer:</strong> This tool and reference mapping are for informational purposes only. Diagnosis of Chronic Kidney Disease (CKD) requires clinical verification, persistence of symptoms over 3 months, and assessment of markers like albuminuria.
     </div>
 </div>
 
@@ -100,32 +166,60 @@ function calculateEGFR() {
     const sex = document.getElementById('sex').value;
 
     if (isNaN(scr) || isNaN(age) || scr <= 0 || age <= 0) {
-        alert("Please enter valid positive numbers for Creatinine and Age.");
+        alert("Please enter valid positive numbers.");
         return;
     }
 
-    // CKD-EPI 2021 Constants
     let kappa = (sex === 'female') ? 0.7 : 0.9;
     let alpha = (sex === 'female') ? -0.241 : -0.302;
     let sexMultiplier = (sex === 'female') ? 1.012 : 1.0;
 
-    // Core CKD-EPI calculation components
-    let scrTerm = Math.pow(scr / kappa, alpha);
     let ageTerm = Math.pow(0.9938, age);
-    
-    // Final equation logic
-    let egfr = 142 * Math.min(Math.pow(scr / kappa, alpha), 1) 
-                   * Math.max(Math.pow(scr / kappa, -1.200), 1) 
-                   * ageTerm * sexMultiplier;
-
-    // Standard adjustments fallback if min/max boundary conditions logic differs slightly in JS formatting:
-    // Alternate precise check:
     let minTerm = Math.pow(Math.min(scr / kappa, 1), alpha);
     let maxTerm = Math.pow(Math.max(scr / kappa, 1), -1.200);
+    
     let finalEgfr = 142 * minTerm * maxTerm * ageTerm * sexMultiplier;
+    let roundedEgfr = Math.round(finalEgfr);
 
-    document.getElementById('egfrValue').innerText = finalEgfr.toFixed(0);
+    // Display eGFR Value
+    document.getElementById('egfrValue').innerText = roundedEgfr;
+
+    // Interpret CKD Stage
+    let badge = document.getElementById('stageBadge');
+    badge.className = 'stage-badge'; // Reset classes
+    
+    if (roundedEgfr >= 90) {
+        badge.innerText = "Stage G1: Normal / High Function";
+        badge.classList.add('stage-1');
+        document.getElementById('egfrValue').style.color = "#065f46";
+    } else if (roundedEgfr >= 60) {
+        badge.innerText = "Stage G2: Mildly Decreased";
+        badge.classList.add('stage-2');
+        document.getElementById('egfrValue').style.color = "#b45309";
+    } else if (roundedEgfr >= 45) {
+        badge.innerText = "Stage G3a: Mild to Moderate Decrease";
+        badge.classList.add('stage-3');
+        document.getElementById('egfrValue').style.color = "#c2410c";
+    } else if (roundedEgfr >= 30) {
+        badge.innerText = "Stage G3b: Moderate to Severe Decrease";
+        badge.classList.add('stage-3');
+        document.getElementById('egfrValue').style.color = "#c2410c";
+    } else if (roundedEgfr >= 15) {
+        badge.innerText = "Stage G4: Severely Decreased";
+        badge.classList.add('stage-4');
+        document.getElementById('egfrValue').style.color = "#b91c1c";
+    } else {
+        badge.innerText = "Stage G5: Kidney Failure";
+        badge.classList.add('stage-5');
+        document.getElementById('egfrValue').style.color = "#9d174d";
+    }
+
     document.getElementById('resultBox').style.display = 'block';
+}
+
+function resetCalculator() {
+    document.getElementById('calcForm').reset();
+    document.getElementById('resultBox').style.display = 'none';
 }
 </script>
 
