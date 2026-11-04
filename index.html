@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eGFR Calculator (CKD-EPI 2021)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .calculator-card {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+        h2 { text-align: center; color: #333; margin-top: 0; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover { background-color: #0056b3; }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            text-align: center;
+            display: none;
+        }
+        .result-val { font-size: 24px; font-weight: bold; color: #28a745; margin: 10px 0; }
+        .disclaimer { font-size: 11px; color: #777; margin-top: 20px; text-align: justify; }
+    </style>
+</head>
+<body>
+
+<div class="calculator-card">
+    <h2>eGFR Calculator</h2>
+    <p style="font-size: 12px; color: #666; text-align: center; margin-top: -10px;">CKD-EPI (2021) Race-Free Equation</p>
+    
+    <div class="form-group">
+        <label for="creatinine">Serum Creatinine (mg/dL):</label>
+        <input type="number" id="creatinine" step="0.01" placeholder="e.g., 0.95" required>
+    </div>
+
+    <div class="form-group">
+        <label for="age">Age (years):</label>
+        <input type="number" id="age" placeholder="e.g., 45" required>
+    </div>
+
+    <div class="form-group">
+        <label for="sex">Biological Sex:</label>
+        <select id="sex" required>
+            <option value="female">Female</option>
+            <option value="male">Male</option>
+        </select>
+    </div>
+
+    <button onclick="calculateEGFR()">Calculate eGFR</button>
+
+    <div id="resultBox" class="result">
+        <div>Your Estimated GFR:</div>
+        <div id="egfrValue" class="result-val">--</div>
+        <div style="font-size: 13px; color: #555;">mL/min/1.73 m²</div>
+    </div>
+
+    <div class="disclaimer">
+        <strong>Disclaimer:</strong> This tool is for informational purposes only and does not substitute for professional medical advice, diagnosis, or clinical judgement. 
+    </div>
+</div>
+
+<script>
+function calculateEGFR() {
+    const scr = parseFloat(document.getElementById('creatinine').value);
+    const age = parseFloat(document.getElementById('age').value);
+    const sex = document.getElementById('sex').value;
+
+    if (isNaN(scr) || isNaN(age) || scr <= 0 || age <= 0) {
+        alert("Please enter valid positive numbers for Creatinine and Age.");
+        return;
+    }
+
+    // CKD-EPI 2021 Constants
+    let kappa = (sex === 'female') ? 0.7 : 0.9;
+    let alpha = (sex === 'female') ? -0.241 : -0.302;
+    let sexMultiplier = (sex === 'female') ? 1.012 : 1.0;
+
+    // Core CKD-EPI calculation components
+    let scrTerm = Math.pow(scr / kappa, alpha);
+    let ageTerm = Math.pow(0.9938, age);
+    
+    // Final equation logic
+    let egfr = 142 * Math.min(Math.pow(scr / kappa, alpha), 1) 
+                   * Math.max(Math.pow(scr / kappa, -1.200), 1) 
+                   * ageTerm * sexMultiplier;
+
+    // Standard adjustments fallback if min/max boundary conditions logic differs slightly in JS formatting:
+    // Alternate precise check:
+    let minTerm = Math.pow(Math.min(scr / kappa, 1), alpha);
+    let maxTerm = Math.pow(Math.max(scr / kappa, 1), -1.200);
+    let finalEgfr = 142 * minTerm * maxTerm * ageTerm * sexMultiplier;
+
+    document.getElementById('egfrValue').innerText = finalEgfr.toFixed(0);
+    document.getElementById('resultBox').style.display = 'block';
+}
+</script>
+
+</body>
+</html>
