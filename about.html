@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Clinical Reference</title>
+    <style>
+        :root {
+            --primary: #0d9488;
+            --bg-main: #f8fafc;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 16px 16px 85px 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .app-container { width: 100%; max-width: 480px; }
+        header { text-align: center; margin-bottom: 25px; margin-top: 10px; }
+        header h1 { font-size: 24px; font-weight: 700; margin: 0; }
+        
+        .info-card {
+            background: white;
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.01);
+        }
+        .info-card h2 { font-size: 16px; margin-top: 0; color: var(--primary); font-weight: 700; }
+        .info-card p { font-size: 14px; line-height: 1.5; color: #334155; margin-bottom: 0; }
+        
+        .grid-row { display: flex; justify-content: space-between; padding: 12px 0; font-size: 13px; border-bottom: 1px solid #f1f5f9; }
+        .grid-row:last-child { border-bottom: none; }
+        .grid-label { font-weight: 600; }
+        
+        /* TAB BAR STYLING (Highlights 'Reference' link instead) */
+        .tab-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; height: 65px; display: flex; border-top: 1px solid var(--border); box-shadow: 0 -4px 12px rgba(0,0,0,0.05); z-index: 2000; }
+        .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; color: var(--text-muted); font-size: 12px; font-weight: 600; }
+        .tab-item.active { color: var(--primary); }
+        .tab-icon { font-size: 20px; margin-bottom: 2px; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <header>
+        <h1>Medical Guide</h1>
+    </header>
+
+    <div class="info-card">
+        <h2>KDIGO Staging Criteria</h2>
+        <div class="grid-row" style="color: #065f46;"><span class="grid-label">G1: Normal / High</span><span>&ge; 90</span></div>
+        <div class="grid-row" style="color: #b45309;"><span class="grid-label">G2: Mildly Decreased</span><span>60 - 89</span></div>
+        <div class="grid-row" style="color: #c2410c;"><span class="grid-label">G3a: Mild to Moderate</span><span>45 - 59</span></div>
+        <div class="grid-row" style="color: #c2410c;"><span class="grid-label">G3b: Moderate to Severe</span><span>30 - 44</span></div>
+        <div class="grid-row" style="color: #b91c1c;"><span class="grid-label">G4: Severely Decreased</span><span>15 - 29</span></div>
+        <div class="grid-row" style="color: #9d174d;"><span class="grid-label">G5: Kidney Failure</span><span>&lt; 15</span></div>
+    </div>
+
+    <div class="info-card">
+        <h2>About the 2021 Equation</h2>
+        <p>The CKD-EPI 2021 creatinine equation estimated glomerular filtration rate without a race coefficient. Developed by the Chronic Kidney Disease Epidemiology Collaboration, it aims to deliver equitable care calculations across diverse clinical groups.</p>
+    </div>
+</div>
+
+<!-- Mobile Navigation Tab Bar -->
+<div class="tab-bar">
+    <a href="index.html" class="tab-item">
+        <span class="tab-icon">🧮</span>
+        <span>Calculator</span>
+    </a>
+    <a href="about.html" class="tab-item active">
+        <span class="tab-icon">📚</span>
+        <span>Reference</span>
+    </a>
+</div>
+
+</body>
+</html>
